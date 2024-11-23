@@ -1,8 +1,9 @@
 import os
+import argparse
 
 import torch
 
-from .data import FT_training_dataset
+from src.data import FT_training_dataset
 from src.models import (
     ModelType,
     LoRALoader,
@@ -88,7 +89,26 @@ def train():
     # Train
     trainer.train()
 
+def evaluation() -> None:
+
+    print("nothing")
+
 
 if __name__ == "__main__":
 
-    train()
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(description="Run training or evaluation")
+    parser.add_argument('--train', action='store_true', help="Run training")
+    parser.add_argument('--evaluation', action='store_true', help="Run evaluation")
+
+    # Parse the arguments
+    args = parser.parse_args()
+
+    if args.train:
+        print("Running training...")
+        train()
+    elif args.evaluation:
+        print("Running evaluation...")
+        evaluation()
+    else:
+        parser.print_help()

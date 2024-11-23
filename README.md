@@ -8,7 +8,8 @@
 2. [Project Structure](#project-structure)
 3. [Setup](#setup)
 4. [Usage](#usage)
-    1. ... 
+   1. [Training](#training)
+   2. [Evaluation](#evaluation) 
 5. [Modules Description](#modules-description)
 
 
@@ -71,3 +72,25 @@ As the size of this scope of this project is very small, only one file is propos
 It is possible to make easy changes to the pipeline, just by modifying the functions with the different modules provided.
 
 By default, the pipeline works with a model from the avaliable, applying quantization, and with LoRA and Prompt Tuning for **PEFT**.
+
+Befor running the following commands, make sure the configuration is as expected (e.g. model, hyperparameters, ...)
+
+### Training
+
+```
+python main.py --training
+```
+
+```
+python -m main --training
+```
+
+### Evaluation
+
+```bash
+python main.py --evaluation
+```
+
+```bash
+python -m main --evaluation
+```
