@@ -1,5 +1,4 @@
 from datasets import load_dataset
-from transformers import AutoTokenizer
 
 LIMA = "GAIR/lima"
 ALPACA = "tatsu-lab/alpaca"
