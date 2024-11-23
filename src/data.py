@@ -1,6 +1,11 @@
 from datasets import load_dataset
 from transformers import AutoTokenizer
 
+from models import TokenizerLoader
+
+LIMA = "GAIR/lima"
+ALPACA = "tatsu-lab/alpaca"
+ULTRABIN = "ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following"
 
 class FT_training_dataset():
     """
@@ -17,15 +22,15 @@ class FT_training_dataset():
         self.tokenizer = None
 
         self.format_functions = {
-            "GAIR/lima": self.format_conversation_lima,
-            "tatsu-lab/alpaca": self.format_conversation_alpaca,
-            "ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following": self.format_conversation_ultrabin
+            LIMA: self.format_conversation_lima,
+            ALPACA: self.format_conversation_alpaca,
+            ULTRABIN: self.format_conversation_ultrabin
         }
 
         self.columns_to_remove = {
-            "GAIR/lima": ["conversations", "source"],
-            "tatsu-lab/alpaca": ["input", "instruction", "text"],
-            "ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following": [
+            LIMA: ["conversations", "source"],
+            ALPACA: ["input", "instruction", "text"],
+            ULTRABIN: [
                 "source", "prompt", "chosen", "chosen-avg-rating", "chosen-rating",
                 "chosen-model", "chosen-rationale", "rejected", "rejected-avg-rating",
                 "rejected-rating", "rejected-model", "rejected-rationale", "ranking-attribute"
@@ -34,17 +39,11 @@ class FT_training_dataset():
 
         self.get_data()
 
-    def get_data(self):
+    def get_data(self, tokenizer):
         dataset = load_dataset(self.dataset_name, split="train")
         dataset.train_test_split(test_size=0.2)
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name,
-            add_eos_token=True,
-            use_fast=True,
-            padding_side='left'
-        )
-        self.tokenizer.pad_token = self.tokenizer.eos_token 
+        self.tokenizer = tokenizer
 
         if self.dataset_name not in self.format_functions:
             raise Exception(f"FT_training_dataset doesn't have an implementation for the {self.dataset_name} dataset")
