@@ -1,8 +1,6 @@
 from datasets import load_dataset
 from transformers import AutoTokenizer
 
-from models import TokenizerLoader
-
 LIMA = "GAIR/lima"
 ALPACA = "tatsu-lab/alpaca"
 ULTRABIN = "ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following"
@@ -12,8 +10,7 @@ class FT_training_dataset():
     Class containing the pre-process of the three datasets we use: tatsu-lab/alpaca, GAIR/lima, ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following
     """
 
-    def __init__(self, dataset_name: str, model_name: str, num_val: int):
-        self.model_name = model_name
+    def __init__(self, dataset_name: str, num_val: int):
         self.dataset_name = dataset_name
         self.num_val = num_val
 
