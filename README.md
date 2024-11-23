@@ -55,6 +55,8 @@ First, clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/pablogarciaamolina/Huggingface-LM-SFT
+```
+```bash
 cd HUGGINGFACE-LM-SFT
 ```
 
