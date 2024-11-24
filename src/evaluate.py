@@ -80,7 +80,7 @@ class IFEVALEvaluator:
     def measure(name: str) -> subprocess.CompletedProcess:
 
         command = [
-            "python", 
+            "python3", 
             "-m", "instruction_following_eval.evaluation_main",
             "--input_data", os.path.join("src", "instruction_following_eval", "data", "input_data.jsonl"),
             "--input_response_data", os.path.join(SAVING_EVALUATION_DIR, f"{name}.json"),

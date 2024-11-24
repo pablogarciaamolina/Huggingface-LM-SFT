@@ -120,7 +120,7 @@ def evaluation() -> None:
 
 def ifeval() -> None:
 
-    results = IFEVALEvaluator.measure(EVALUATION_MODEL)
+    results = IFEVALEvaluator.measure(EVALUATION_MODEL.replace("/", "-"))
 
     print(results)
 
