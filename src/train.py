@@ -1,5 +1,6 @@
 from transformers import TrainingArguments
 from trl import SFTTrainer
+from .data import FT_training_dataset
 
 
 TRAINING_ARGUMENTS = {
@@ -21,7 +22,7 @@ class Trainer:
     def __init__(
             self,
             model,
-            dataset,
+            dataset: FT_training_dataset,
             tokenizer,
             hyperparameters: dict,
             saving_dir: str = "results",
@@ -43,8 +44,8 @@ class Trainer:
         )
         self.trainer = SFTTrainer(
             model=model,
-            train_dataset=dataset['train'],
-            eval_dataset=dataset["test"],
+            train_dataset=dataset.train_data,
+            eval_dataset=dataset.test_data,
             tokenizer=tokenizer,                  
             args=training_args,
             **trainer_specifications
