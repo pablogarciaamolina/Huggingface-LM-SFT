@@ -45,11 +45,15 @@ DATASET_CONFIG = {
     "num_val": 25
 }
 
-QUANTIZATION_CONGIG = {
+QUANTIZATION_CONFIG = {
     "load_in_4bit": True,
     "bnb_4bit_quant_type": "nf4",
     "bnb_4bit_compute_dtype": getattr(torch, "bfloat16"),
     "bnb_4bit_use_double_quant": True
+}
+
+TRAINER_SPECIFICATIONS = {
+    "max_seq_len": 512
 }
 
 def train():
@@ -59,20 +63,21 @@ def train():
 
     # -------------------- MODIFY TO CHANGE PIPELINE --------------------
     # Prepare quantization scheme
-    quantization = QuantizationLoader(**QUANTIZATION_CONGIG).load()
+    quantization = QuantizationLoader(**QUANTIZATION_CONFIG).load()
     # quantization = None
 
     # Set PEFT
     lora = LoRALoader().load()
     prompt_tunning = PromptTunningLoader(MODEL, num_virtual_tokens=50).load()
-    peft = PEFTLoader([lora, prompt_tunning]).load()
+    peft_config = [lora, prompt_tunning]
 
     # -------------------------------------------------------------------
     # ---------------------- NO NEED TO MODIFY --------------------------
     # Load Tokenizer
     tokenizer = TokenizerLoader(TOKENIZER if TOKENIZER else MODEL, **TOKENIZER_CONFIG).load()
-    # Load Model
+    # Load Model - Add PEFT
     model = ModelLoader(MODEL, pad_token_id=tokenizer.pad_token_id, quantization=quantization, **MODEL_CONFIG).load()
+    model = PEFTLoader([lora, prompt_tunning]).load(model)
     # Load dataset
     dataset = FT_training_dataset(dataset_name=DATASET, **DATASET_CONFIG)
 
@@ -82,8 +87,9 @@ def train():
         dataset,
         tokenizer,
         HYPERPARAMETERS,
-        peft,
-        os.path.join(RESULTS_PATH, MODEL+"_results")
+        os.path.join(RESULTS_PATH, MODEL+"_results"),
+        verbose=True
+        **TRAINER_SPECIFICATIONS
     )
 
     # Train

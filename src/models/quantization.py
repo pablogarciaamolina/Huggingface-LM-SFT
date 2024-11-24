@@ -23,7 +23,7 @@ class QuantizationLoader:
         self.bnb_4bit_compute_dtype = bnb_4bit_compute_dtype
         self.bnb_4bit_use_double_quant = bnb_4bit_use_double_quant
 
-    def load_config(self) -> BitsAndBytesConfig:
+    def load(self) -> BitsAndBytesConfig:
         
         self.config = BitsAndBytesConfig(
             load_in_4bit=self.load_in_4bit,

@@ -24,10 +24,9 @@ class Trainer:
             dataset,
             tokenizer,
             hyperparameters: dict,
-            peft_config = None,
             saving_dir: str = "results",
-            max_seq_len: int = 512,
-            verbose: bool = True
+            verbose: bool = True,
+            **trainer_specifications
         ) -> None:
         """
         tokenizer_name: If no tokenizer name is provided, it is supposed is the same as the model name.
@@ -36,7 +35,6 @@ class Trainer:
         # self.model = model
         # self.dataset = dataset
         # self.tokenizer = tokenizer
-        # self.peft = peft_config
         self.verbose = verbose
 
         training_args = TrainingArguments(
@@ -47,10 +45,9 @@ class Trainer:
             model=model,
             train_dataset=dataset['train'],
             eval_dataset=dataset["test"],
-            peft_config=peft_config,
             tokenizer=tokenizer,                  
             args=training_args,
-            max_seq_length=max_seq_len
+            **trainer_specifications
         )
 
     def train(self) -> None:
