@@ -2,7 +2,7 @@ import os
 import json
 import subprocess
 
-import tqdm
+from tqdm import tqdm
 import torch
 from datasets import load_dataset
 
@@ -32,6 +32,7 @@ class IFEVALEvaluator:
             save_name: str,
             device: str = "cpu",
             batch_size: int = 8,
+            num_batches: int = 5,
             max_length: int = 128
     ) -> None:
         
@@ -49,9 +50,9 @@ class IFEVALEvaluator:
         max_length = 128  # Limit output length to avoid excessive memory usage
         with open(output_file, 'w') as f:
             # Process in batches
-            for i in tqdm(range(0, len(self.dataset["train"]['key'][:5*batch_size]), batch_size), desc="Processing Batches", unit="batch"):
+            for i in tqdm(range(0, len(self.dataset["train"]['key'][:num_batches*batch_size]), batch_size), desc="Processing Batches", unit="batch"):
                 try:
-                    if (i + batch_size) > len(self.dataset.train_data):
+                    if (i + batch_size) > len(self.dataset["train"]):
                         batch_prompts = self.dataset["train"]['prompt'][i:len(self.dataset["train"])]
                     else:
                         batch_prompts = self.dataset["train"]['prompt'][i:i + batch_size]

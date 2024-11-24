@@ -60,6 +60,7 @@ TRAINER_SPECIFICATIONS = {
 
 EVALUATION_SPECIFICATIONS = {
     "batch_size": 8,
+    "num_batches": 2,
     "max_length": 128
 }
 
