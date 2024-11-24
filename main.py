@@ -77,7 +77,7 @@ def train():
     tokenizer = TokenizerLoader(TOKENIZER if TOKENIZER else MODEL, **TOKENIZER_CONFIG).load()
     # Load Model - Add PEFT
     model = ModelLoader(MODEL, pad_token_id=tokenizer.pad_token_id, quantization=quantization, **MODEL_CONFIG).load()
-    model = PEFTLoader([lora, prompt_tunning]).load(model)
+    model = PEFTLoader(peft_config).load(model)
     # Load dataset
     dataset = FT_training_dataset(dataset_name=DATASET, **DATASET_CONFIG)
 

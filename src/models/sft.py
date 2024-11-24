@@ -7,10 +7,10 @@ BASE_MODULES = ['k_proj', 'q_proj', 'v_proj', 'o_proj','gate_proj', 'down_proj',
 
 class PEFTLoader:
     
-    def __init__(self, peft_configs: list[PeftConfig], peft_type: str = "composed") -> None:
+    def __init__(self, peft_configs: list[PeftConfig]) -> None:
 
         self.configs = peft_configs
-        self.type = peft_type
+        # self.type = peft_type
 
     def load(self, model: PreTrainedModel) -> PeftModel:
 
