@@ -1,4 +1,5 @@
 from datasets import load_dataset
+from transformers.tokenization_utils_base import PreTrainedTokenizerBase
 
 LIMA = "GAIR/lima"
 ALPACA = "tatsu-lab/alpaca"
@@ -9,13 +10,13 @@ class FT_training_dataset():
     Class containing the pre-process of the three datasets we use: tatsu-lab/alpaca, GAIR/lima, ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following
     """
 
-    def __init__(self, dataset_name: str, num_val: int):
+    def __init__(self, dataset_name: str, tokenizer: PreTrainedTokenizerBase, num_val: int):
         self.dataset_name = dataset_name
         self.num_val = num_val
 
         self.test_data = None
         self.train_data = None
-        self.tokenizer = None
+        self.tokenizer = tokenizer
 
         self.format_functions = {
             LIMA: self.format_conversation_lima,
@@ -33,7 +34,7 @@ class FT_training_dataset():
             ]
         }
 
-        self.get_data()
+        self.get_data(self.tokenizer)
 
     def get_data(self, tokenizer):
         dataset = load_dataset(self.dataset_name, split="train")
