@@ -87,5 +87,5 @@ class FT_training_dataset():
         """
         Ultrabin dataset formatting function.
         """
-        joined_conversations = [examples['prompt'][i] + examples['chosen'][i][0] for i in range(len(examples['prompt']))]
+        joined_conversations = [examples['prompt'][i] + examples['chosen'][i][0]["content"] for i in range(len(examples['prompt']))]
         return self.tokenizer(joined_conversations, truncation=True, max_length=512, padding="max_length", return_tensors="pt")
