@@ -1,4 +1,5 @@
 from transformers import TrainingArguments
+from peft import PeftConfig
 from trl import SFTTrainer
 from .data import FT_training_dataset
 
@@ -24,10 +25,11 @@ class Trainer:
             model,
             dataset: FT_training_dataset,
             tokenizer,
+            peft_config: PeftConfig,
             hyperparameters: dict,
             saving_dir: str = "results",
             verbose: bool = True,
-            **trainer_specifications
+            **sft_trainer_specifications
         ) -> None:
         """
         tokenizer_name: If no tokenizer name is provided, it is supposed is the same as the model name.
@@ -46,9 +48,10 @@ class Trainer:
             model=model,
             train_dataset=dataset.train_data,
             eval_dataset=dataset.test_data,
-            tokenizer=tokenizer,                  
+            tokenizer=tokenizer,     
+            peft_config=peft_config,  
             args=training_args,
-            **trainer_specifications
+            **sft_trainer_specifications
         )
 
     def train(self) -> None:

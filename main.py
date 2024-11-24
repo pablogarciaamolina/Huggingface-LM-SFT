@@ -69,7 +69,7 @@ def train():
     # Set PEFT
     lora = LoRALoader().load()
     prompt_tunning = PromptTunningLoader(MODEL, num_virtual_tokens=50).load()
-    peft_config = [lora, prompt_tunning]
+    peft_config = lora
 
     # -------------------------------------------------------------------
     # ---------------------- NO NEED TO MODIFY --------------------------
@@ -77,7 +77,6 @@ def train():
     tokenizer = TokenizerLoader(TOKENIZER if TOKENIZER else MODEL, **TOKENIZER_CONFIG).load()
     # Load Model - Add PEFT
     model = ModelLoader(MODEL, pad_token_id=tokenizer.pad_token_id, quantization=quantization, **MODEL_CONFIG).load()
-    model = PEFTLoader(peft_config).load(model)
     # Load dataset
     dataset = FT_training_dataset(dataset_name=DATASET, tokenizer=tokenizer, **DATASET_CONFIG)
 
@@ -86,6 +85,7 @@ def train():
         model,
         dataset,
         tokenizer,
+        peft_config,
         HYPERPARAMETERS,
         os.path.join(RESULTS_PATH, MODEL+"_results"),
         True,

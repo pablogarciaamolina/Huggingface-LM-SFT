@@ -1,23 +1,23 @@
 from peft import PromptTuningConfig, LoraConfig, PeftConfig, TaskType
-from peft.peft_model import PeftModel
-from transformers.modeling_utils import PreTrainedModel
-
 
 BASE_MODULES = ['k_proj', 'q_proj', 'v_proj', 'o_proj','gate_proj', 'down_proj', 'up_proj']
 
+
 class PEFTLoader:
     
-    def __init__(self, peft_configs: list[PeftConfig]) -> None:
+    def __init__(self, peft_config: PeftConfig) -> None:
 
-        self.configs = peft_configs
+        self.configs = peft_config
         # self.type = peft_type
 
-    def load(self, model: PreTrainedModel) -> PeftModel:
+    def load(self) -> PeftConfig:
 
-        for config in self.configs:
-            model = PeftModel(model, config)
+        # for config in self.configs:
+        #     model = PeftModel(model, config)
 
-        return model
+        # return model
+
+        return PeftConfig(self.type, composed_configs=self.configs)
 
 
 class LoRALoader:
