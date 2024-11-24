@@ -38,25 +38,25 @@ class FT_training_dataset():
 
     def get_data(self, tokenizer):
         dataset = load_dataset(self.dataset_name, split="train")
-        dataset.train_test_split(test_size=0.2)
-
+        dataset = dataset.train_test_split(test_size=0.2)
+ 
         self.tokenizer = tokenizer
-
+ 
         if self.dataset_name not in self.format_functions:
             raise Exception(f"FT_training_dataset doesn't have an implementation for the {self.dataset_name} dataset")
-
+ 
         format_fn = self.format_functions[self.dataset_name]
-
+ 
         tokenized_dataset = dataset.map(format_fn, batched=True)
-
+ 
         tokenized_dataset = self.remove_unwanted_columns(tokenized_dataset)
-
+ 
         tokenized_dataset.set_format(type="torch", columns=["input_ids", "attention_mask"])
-
+ 
         test_data = tokenized_dataset['test'].shuffle(seed=42)
         train_data = tokenized_dataset['train'].shuffle(seed=42)
         test_data = test_data.select(range(self.num_val))
-
+ 
         self.test_data = test_data
         self.train_data = train_data
 
