@@ -79,7 +79,7 @@ def train():
     model = ModelLoader(MODEL, pad_token_id=tokenizer.pad_token_id, quantization=quantization, **MODEL_CONFIG).load()
     model = PEFTLoader(peft_config).load(model)
     # Load dataset
-    dataset = FT_training_dataset(dataset_name=DATASET, tokenizer, **DATASET_CONFIG)
+    dataset = FT_training_dataset(dataset_name=DATASET, tokenizer=tokenizer, **DATASET_CONFIG)
 
     # Prepare trainer
     trainer = Trainer(
