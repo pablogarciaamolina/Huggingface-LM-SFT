@@ -1,5 +1,6 @@
 import os
 import argparse
+import time
 
 import torch
 
@@ -14,13 +15,14 @@ from src.models import (
     TokenizerLoader
 )
 from src.data import ALPACA, LIMA, ULTRABIN
-from src.train import Trainer
-
-RESULTS_PATH = "models"
+from src.train import Trainer, RESULTS_PATH
+from src.evaluate import IFEVALEvaluator, SAVING_EVALUATION_DIR, SAVING_MEASURE_DIR
 
 MODEL = ModelType.PHI_2
 TOKENIZER = None
 DATASET = ALPACA
+
+EVALUATION_MODEL = "microsoft-phi-2_ultrabin_lora_results"
 
 HYPERPARAMETERS = {
     "learning_rate": 1e-4,                   # Initial learning rate
@@ -56,6 +58,11 @@ TRAINER_SPECIFICATIONS = {
     "max_seq_length": 512
 }
 
+EVALUATION_SPECIFICATIONS = {
+    "batch_size": 8,
+    "max_length": 128
+}
+
 def train():
     """
     Pipeline for SFT on a pretrained model
@@ -87,7 +94,7 @@ def train():
         tokenizer,
         peft_config,
         HYPERPARAMETERS,
-        os.path.join(RESULTS_PATH, MODEL+"_results"),
+        MODEL.replace("/", "-")+f"{time.time()}_results",
         True,
         **TRAINER_SPECIFICATIONS
     )
@@ -97,7 +104,24 @@ def train():
 
 def evaluation() -> None:
 
-    print("nothing")
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    path = os.path.join(RESULTS_PATH, EVALUATION_MODEL)
+    tokenizer = TokenizerLoader(path).load()
+    model = ModelLoader(path, pad_token_id=tokenizer.pad_token_id, device_map=device)
+
+    evaluator = IFEVALEvaluator(model, tokenizer, verbose=True)
+    evaluator.evaluate(
+        EVALUATION_MODEL,
+        device,
+        **EVALUATION_SPECIFICATIONS
+    )
+
+def ifeval() -> None:
+
+    results = IFEVALEvaluator.measure(EVALUATION_MODEL)
+
+    print(results)
 
 
 if __name__ == "__main__":
@@ -106,6 +130,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run training or evaluation")
     parser.add_argument('--train', action='store_true', help="Run training")
     parser.add_argument('--evaluation', action='store_true', help="Run evaluation")
+    parser.add_argument('--measure', action='store_true', help="Run IFEVAL benchmark")
 
     # Parse the arguments
     args = parser.parse_args()
@@ -116,5 +141,8 @@ if __name__ == "__main__":
     elif args.evaluation:
         print("Running evaluation...")
         evaluation()
+    elif args.evaluation:
+        print("Running benchmarking...")
+        ifeval()
     else:
         parser.print_help()

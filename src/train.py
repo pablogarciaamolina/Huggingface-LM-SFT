@@ -1,8 +1,11 @@
+import os
+
 from transformers import TrainingArguments
 from peft import PeftConfig
 from trl import SFTTrainer
 from .data import FT_training_dataset
 
+RESULTS_PATH = "models"
 
 TRAINING_ARGUMENTS = {
     "eval_strategy": "steps",                # Evaluation strategy: evaluate every few steps
@@ -27,7 +30,7 @@ class Trainer:
             tokenizer,
             peft_config: PeftConfig,
             hyperparameters: dict,
-            saving_dir: str = "results",
+            saving_name: str = "results",
             verbose: bool = True,
             **sft_trainer_specifications
         ) -> None:
@@ -41,7 +44,7 @@ class Trainer:
         self.verbose = verbose
 
         training_args = TrainingArguments(
-            output_dir = saving_dir,
+            output_dir = os.path.join(RESULTS_PATH, saving_name),
             **{**TRAINING_ARGUMENTS, **hyperparameters}
         )
         self.trainer = SFTTrainer(
