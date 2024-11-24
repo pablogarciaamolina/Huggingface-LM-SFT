@@ -23,7 +23,7 @@ class IFEVALEvaluator:
 
         self.verbose = verbose
 
-    def load_dataset():
+    def load_dataset(self):
 
         return load_dataset("google/IFEval")
 
