@@ -34,7 +34,7 @@ class ModelLoader:
 
        self. model = AutoModelForCausalLM.from_pretrained(
            self.name,
-           quantization=self.quantization,
+           quantization_config=self.quantization,
            device_map=self.device_map
        )
        self.model.config.pad_token_id = self.pad_token_id
