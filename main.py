@@ -53,7 +53,7 @@ QUANTIZATION_CONFIG = {
 }
 
 TRAINER_SPECIFICATIONS = {
-    "max_seq_len": 512
+    "max_seq_length": 512
 }
 
 def train():
