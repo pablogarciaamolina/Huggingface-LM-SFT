@@ -142,7 +142,7 @@ if __name__ == "__main__":
     elif args.evaluation:
         print("Running evaluation...")
         evaluation()
-    elif args.evaluation:
+    elif args.measure:
         print("Running benchmarking...")
         ifeval()
     else:
