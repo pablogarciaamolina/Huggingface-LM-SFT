@@ -88,7 +88,7 @@ def train():
         tokenizer,
         HYPERPARAMETERS,
         os.path.join(RESULTS_PATH, MODEL+"_results"),
-        verbose=True
+        True,
         **TRAINER_SPECIFICATIONS
     )
 
