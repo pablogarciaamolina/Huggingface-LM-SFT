@@ -22,7 +22,7 @@ MODEL = ModelType.PHI_2
 TOKENIZER = None
 DATASET = ALPACA
 
-EVALUATION_MODEL = "microsoft-phi-2_ultrabin_lora_results"
+EVALUATION_MODEL = "microsoft-phi-2_ultrabin_lora_results/checkpoint-75"
 
 HYPERPARAMETERS = {
     "learning_rate": 1e-4,                   # Initial learning rate
@@ -108,11 +108,11 @@ def evaluation() -> None:
 
     path = os.path.join(RESULTS_PATH, EVALUATION_MODEL)
     tokenizer = TokenizerLoader(path).load()
-    model = ModelLoader(path, pad_token_id=tokenizer.pad_token_id, device_map=device)
+    model = ModelLoader(path, pad_token_id=tokenizer.pad_token_id, device_map=device).load()
 
     evaluator = IFEVALEvaluator(model, tokenizer, verbose=True)
     evaluator.evaluate(
-        EVALUATION_MODEL,
+        EVALUATION_MODEL.replace("/", "-"),
         device,
         **EVALUATION_SPECIFICATIONS
     )
