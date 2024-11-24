@@ -122,7 +122,8 @@ def ifeval() -> None:
 
     results = IFEVALEvaluator.measure(EVALUATION_MODEL.replace("/", "-"))
 
-    print(results)
+    print(results.stdout)
+    print(results.stderr)
 
 
 if __name__ == "__main__":
