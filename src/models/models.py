@@ -32,7 +32,7 @@ class ModelLoader:
 
     def load(self) -> PreTrainedModel:
 
-       self. model = AutoModelForCausalLM(
+       self. model = AutoModelForCausalLM.from_pretrained(
            self.name,
            quantization=self.quantization,
            device_map=self.device_map

@@ -18,7 +18,7 @@ class TokenizerLoader:
 
     def load(self) -> PreTrainedTokenizerBase:
 
-        self.tokenizer = AutoTokenizer(
+        self.tokenizer = AutoTokenizer.from_pretrained(
             self.model_name,
             add_eos_token = self.add_eos_token,
             use_fast = self.use_fast,
