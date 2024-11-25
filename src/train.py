@@ -9,7 +9,7 @@ RESULTS_PATH = "models"
 
 TRAINING_ARGUMENTS = {
     "eval_strategy": "steps",                # Evaluation strategy: evaluate every few steps
-    "do_eval": False,                         # Enable evaluation during training
+    "do_eval": False,                        # Enable evaluation during training
     "gradient_accumulation_steps": 2,        # Accumulate gradients over multiple steps
     "per_device_eval_batch_size": 2,         # Batch size per device during evaluation
     "log_level": "debug",                    # Set logging level to debug for detailed logs
@@ -28,7 +28,6 @@ class Trainer:
             model,
             dataset: FT_training_dataset,
             tokenizer,
-            peft_config: PeftConfig,
             hyperparameters: dict,
             saving_name: str = "results",
             verbose: bool = True,
@@ -52,7 +51,6 @@ class Trainer:
             train_dataset=dataset.train_data,
             eval_dataset=dataset.test_data,
             tokenizer=tokenizer,     
-            peft_config=peft_config,  
             args=training_args,
             **sft_trainer_specifications
         )

@@ -1,23 +1,26 @@
-from peft import PromptTuningConfig, LoraConfig, PeftConfig, TaskType
+from peft import PromptTuningConfig, LoraConfig, PeftConfig, TaskType, PeftModel
+from peft import get_peft_model
 
 BASE_MODULES = ['k_proj', 'q_proj', 'v_proj', 'o_proj','gate_proj', 'down_proj', 'up_proj']
 
 
 class PEFTLoader:
     
-    def __init__(self, peft_config: PeftConfig) -> None:
+    def __init__(self, model, peft_configs: lsit[PeftConfig]) -> None:
 
-        self.configs = peft_config
+        self.model = model
+        self.configs = peft_configs
         # self.type = peft_type
 
-    def load(self) -> PeftConfig:
+    def load(self) -> PeftModel:
 
-        # for config in self.configs:
-        #     model = PeftModel(model, config)
+        model = self.model
+        for config in self.configs:
+            if config:
+                model = get_peft_model(model, config)
 
-        # return model
-
-        return PeftConfig(self.type, composed_configs=self.configs)
+        return model
+        # return PeftConfig(self.type, composed_configs=self.configs)
 
 
 class LoRALoader:
