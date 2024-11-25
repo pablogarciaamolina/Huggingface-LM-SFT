@@ -6,7 +6,7 @@ BASE_MODULES = ['k_proj', 'q_proj', 'v_proj', 'o_proj','gate_proj', 'down_proj',
 
 class PEFTLoader:
     
-    def __init__(self, model, peft_configs: lsit[PeftConfig]) -> None:
+    def __init__(self, model, peft_configs: list[PeftConfig]) -> None:
 
         self.model = model
         self.configs = peft_configs
