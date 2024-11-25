@@ -1,29 +1,29 @@
 from datasets import load_dataset
 from transformers.tokenization_utils_base import PreTrainedTokenizerBase
-
+ 
 LIMA = "GAIR/lima"
 ALPACA = "tatsu-lab/alpaca"
 ULTRABIN = "ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following"
-
+ 
 class FT_training_dataset():
     """
     Class containing the pre-process of the three datasets we use: tatsu-lab/alpaca, GAIR/lima, ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following
     """
-
+ 
     def __init__(self, dataset_name: str, tokenizer: PreTrainedTokenizerBase, num_val: int):
         self.dataset_name = dataset_name
         self.num_val = num_val
-
+ 
         self.test_data = None
         self.train_data = None
         self.tokenizer = tokenizer
-
+ 
         self.format_functions = {
             LIMA: self.format_conversation_lima,
             ALPACA: self.format_conversation_alpaca,
             ULTRABIN: self.format_conversation_ultrabin
         }
-
+ 
         self.columns_to_remove = {
             LIMA: ["conversations", "source"],
             ALPACA: ["input", "instruction", "text"],
@@ -33,9 +33,9 @@ class FT_training_dataset():
                 "rejected-rating", "rejected-model", "rejected-rationale", "ranking-attribute"
             ]
         }
-
+ 
         self.get_data(self.tokenizer)
-
+ 
     def get_data(self, tokenizer):
         dataset = load_dataset(self.dataset_name, split="train")
         dataset = dataset.train_test_split(test_size=0.2)
@@ -59,7 +59,7 @@ class FT_training_dataset():
  
         self.test_data = test_data
         self.train_data = train_data
-
+ 
     def remove_unwanted_columns(self, dataset):
         """
         Remove columns specific to each dataset based on the `columns_to_remove` dictionary.
@@ -68,24 +68,24 @@ class FT_training_dataset():
             columns = self.columns_to_remove[self.dataset_name]
             dataset = dataset.remove_columns(columns)
         return dataset
-
+ 
     def format_conversation_lima(self, examples):
         """
         Lima dataset formatting function.
         """
         joined_conversations = [" ".join(conv) if isinstance(conv, list) else conv for conv in examples['conversations']]
         return self.tokenizer(joined_conversations, truncation=True, max_length=512, padding="max_length", return_tensors="pt")
-
+ 
     def format_conversation_alpaca(self, examples):
         """
         Alpaca dataset formatting function.
         """
-        joined_conversations = [examples['instruction'][i] + examples['input'][i] + examples['output'][i] for i in range(len(examples['instruction']))]
+        joined_conversations = ["\nPrompt:" + examples['instruction'][i] + examples['input'][i]+ "\nResponse:" + examples['output'][i] for i in range(len(examples['instruction']))]
         return self.tokenizer(joined_conversations, truncation=True, max_length=512, padding="max_length", return_tensors="pt")
-
+ 
     def format_conversation_ultrabin(self, examples):
         """
         Ultrabin dataset formatting function.
         """
-        joined_conversations = [examples['prompt'][i] + examples['chosen'][i][0]["content"] for i in range(len(examples['prompt']))]
+        joined_conversations = ["\nPrompt:" + examples['prompt'][i] + "\nResponse:" + examples['chosen'][i][0]["content"] for i in range(len(examples['prompt']))]
         return self.tokenizer(joined_conversations, truncation=True, max_length=512, padding="max_length", return_tensors="pt")
