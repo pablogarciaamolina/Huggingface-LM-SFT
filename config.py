@@ -14,7 +14,7 @@ MODEL = ModelType.PHI_2
 TOKENIZER = None
 DATASET = ALPACA
 
-EVALUATION_MODEL = "microsoft-phi-2_ultrabin_lora_results/checkpoint-75"
+EVALUATION_MODEL = "microsoft-phi-2_ultrabin_results/checkpoint-75"
 
 # HYPERPARAMETERS
 HYPERPARAMETERS = {
