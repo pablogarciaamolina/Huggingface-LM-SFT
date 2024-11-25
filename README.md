@@ -9,8 +9,15 @@
 3. [Setup](#setup)
 4. [Usage](#usage)
    1. [Training](#training)
-   2. [Evaluation](#evaluation) 
-5. [Modules Description](#modules)
+   2. [Evaluation](#evaluation)
+   3. [Benchmarking](#benchmarking)
+5. [Supported Models and Datasets](#supported-models-and-datsets)
+   1. [Models](#models)
+   2. [Datasets](#datasets)
+6. [Modules Description](#modules)
+   1. [config.py](#configpy)
+   2. [main.py](#mainpy)
+   3. [src](#src)
 
 
 ## Overview
@@ -118,6 +125,29 @@ python main.py --measure
 python -m main --measure
 ```
 
+## Supported Models and Datsets
+
+### Models
+
+The following models are supported for every one of the usage cases.
+
+- `Qwen/Qwen2.5-7B`
+- `mistralai/Mistral-7B-v0.3`
+- `Qwen/Qwen2.5-7B`
+- `meta-llama/Llama-3.1-8B`
+- `google/gemma-2-2b-jpn-it`
+- `google/recurrentgemma-9b`
+
+### Datasets
+
+The following datasets are supported and have their individual mappings implemented.
+
+- `tatsu-lab/alpaca`
+- `ContextualAI/ultrabin_clean_max_chosen_min_rejected_rationalized_instruction_following`
+- `GAIR/lima`
+
+
+
 ## Modules
 
 In this section, a deeper explanation for each module of the repository is given. This is specially useful in the case of the **configurations**, as it will be explained how to modify the pipeline at will.
@@ -126,11 +156,11 @@ In this section, a deeper explanation for each module of the repository is given
 
 This file stores the cofigurations variables of the proyect, which modify the pipeline for training, evaluating and measuring. These configurations variables will be listed and a brief explanation will be provided.
 
-- `MODEL`: Specifies the type of model to use in the pipeline.
+- `MODEL`: Specifies the model to use.
 
-- `TOKENIZER`: The tokenizer instance or configuration. If `None`, the model's default tokenizer is used.
+- `TOKENIZER`: The tokenizer to use. If `None`, the model's tokenizer is used.
 
-- `DATASET`: The dataset selected for training or evaluation.
+- `DATASET`: The dataset selected for training.
 
 - `EVALUATION_MODEL`: Path to the specific model checkpoint used for evaluation.
 
@@ -159,33 +189,66 @@ This file stores the cofigurations variables of the proyect, which modify the pi
   - `device_map`: Strategy for distributing the model across devices.
 
 - `DATASET_CONFIG`: Options for customizing dataset handling.
-  - `num_val`: Number of validation samples. **Value**: `25`
+  - `num_val`: Number of validation samples.
 
 - `USE_QUANTIZATION`: Flag indicating whether quantization is enabled.
 
 - `QUANTIZATION_CONFIG`: Parameters for enabling model quantization for memory and computational efficiency.
-  - `load_in_4bit`: Whether to load the model in 4-bit precision. **Value**: `True`
-  - `bnb_4bit_quant_type`: Type of 4-bit quantization. **Value**: `"nf4"`
-  - `bnb_4bit_compute_dtype`: Data type for computations during quantization. **Value**: `torch.bfloat16`
-  - `bnb_4bit_use_double_quant`: Whether to use double quantization. **Value**: `True`
+  - `load_in_4bit`: Whether to load the model in 4-bit precision.
+  - `bnb_4bit_quant_type`: Type of 4-bit quantization.
+  - `bnb_4bit_compute_dtype`: Data type for computations during quantization.
+  - `bnb_4bit_use_double_quant`: Whether to use double quantization.
 
-- `USE_LORA`: Indicates whether LoRA (Low-Rank Adaptation) fine-tuning is enabled.
+- `USE_LORA`: Indicates whether LoRA fine-tuning is enabled.
 
 - `LORA_CONFIG`: Configuration for LoRA fine-tuning.
-  - `lora_alpha`: Scaling factor for LoRA updates. **Value**: `16`
-  - `lora_dropout`: Dropout probability during LoRA training. **Value**: `0.05`
-  - `r`: Rank of LoRA updates. **Value**: `16`
-  - `bias`: Type of bias adjustment. **Value**: `"none"`
-  - `task_type`: Task type for which LoRA is applied. **Value**: `TaskType.CAUSAL_LM`
+  - `lora_alpha`: Scaling factor for LoRA updates.
+  - `lora_dropout`: Dropout probability during LoRA training. **Valu
+  - `r`: Rank of LoRA updates.
+  - `bias`: Type of bias adjustment.
+  - `task_type`: Task type for which LoRA is applied. **Valu
   - `target_modules`: List of target modules to apply LoRA.
 
 - `USE_PROMPT_TUNNING`: Indicates whether prompt tuning is enabled.
 
 - `PROMPT_TUNNING_CONFIG`: Configuration for prompt tuning if enabled.
-  - `task_type`: Task type for which prompt tuning is applied. **Value**: `TaskType.CAUSAL_LM`
-  - `num_virtual_tokens`: Number of virtual tokens added during prompt tuning. **Value**: `50`
+  - `task_type`: Task type for which prompt tuning is applied.
+  - `num_virtual_tokens`: Number of virtual tokens added during prompt tuning.
 
+Note that all parameters follow Hugging Face specifications. For further information, visit the oficial web site.
 
 ### `main.py`
 
-This is the main file of the proyect. It runs the pipelines.
+This is the main file of the proyect. It runs the pipelines. No modifications are needed in this file, it should only be used when calling the different steps.
+
+### `src`
+
+#### instruction_following_eval
+
+This is the module that computes IFEVAL benchmarking. It contains all needed functionalities as well as some required JSON files.
+
+#### models
+
+This module contains the abstractions to Hugging Face API. It contains a bunch of objects that facilitate our pipeline.
+
+#### data.py
+
+This module contains the abstractions of the supported Datasets. This include their mapping functions wich process the raw data with the tokenizer.
+
+#### evaluate.py
+
+This module wraps the methods needed for running evaluation under `"google/IFEval"` dataset and storing the result in a JSON file.
+
+It also has a mathod to run the IFEVAL benchmarking over this results.
+
+#### resources_measuring.py
+
+This module contains functions to measure the computational requirements a model is using.
+
+It is supposed to contain methods to estimate the load a process would require before running it (useful to know whether the GPU memory will be suficient), but this has not been implemented yet.
+
+These methods have not been implemented for quick deployment yet.
+
+#### train.py
+
+This contains the abstraction of the SFTTrainer() from Hugging Face. In addition to the configurations from the configuration file, at the beggining of the script there is a dictionary for further configure the training. This dictionary contains parameters to a deper level and do not need to be changed unless a specific training is desired.
