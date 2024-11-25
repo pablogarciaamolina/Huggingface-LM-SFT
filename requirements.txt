@@ -1,0 +1,10 @@
+absl_py==2.1.0
+datasets==3.1.0
+immutabledict==4.2.1
+langdetect==1.0.9
+nltk==3.8.1
+peft==0.13.2
+torch==2.1.1
+tqdm==4.66.5
+transformers==4.46.3
+trl==0.12.1
