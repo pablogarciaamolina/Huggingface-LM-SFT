@@ -58,6 +58,7 @@ class IFEVALEvaluator:
                         batch_prompts = self.dataset["train"]['prompt'][i:i + batch_size]
                     # Tokenize inputs
                     inputs = self.tokenizer(batch_prompts, return_tensors="pt", padding=True, truncation=True).to(device)
+                    inputs_length = inputs.input_ids.shape[-1]
                     
                     # Generate responses
                     with torch.no_grad():  # Ensure gradients are disabled during generation
@@ -66,6 +67,7 @@ class IFEVALEvaluator:
                         else:
                             outputs = self.model.generate(**inputs)
                     # Decode responses
+                    outputs = outputs[:, inputs_length:]
                     responses = [self.tokenizer.decode(output, skip_special_tokens=True) for output in outputs]
 
                     # Write each response directly to the file
