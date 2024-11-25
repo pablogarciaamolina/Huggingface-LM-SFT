@@ -6,7 +6,6 @@ import torch
 
 from src.data import FT_training_dataset
 from src.models import (
-    ModelType,
     LoRALoader,
     PromptTunningLoader,
     PEFTLoader,
@@ -14,77 +13,52 @@ from src.models import (
     ModelLoader,
     TokenizerLoader
 )
-from src.data import ALPACA, LIMA, ULTRABIN
 from src.train import Trainer, RESULTS_PATH
-from src.evaluate import IFEVALEvaluator, SAVING_EVALUATION_DIR, SAVING_MEASURE_DIR
+from src.evaluate import IFEVALEvaluator
 
-MODEL = ModelType.PHI_2
-TOKENIZER = None
-DATASET = ALPACA
+from config import (
+    QUANTIZATION_CONFIG,
+    USE_QUANTIZATION,
+    USE_LORA,
+    LORA_CONFIG,
+    USE_PROMPT_TUNNING,
+    PROMPT_TUNNING_CONFIG,
+    TOKENIZER,
+    TOKENIZER_CONFIG,
+    MODEL,
+    MODEL_CONFIG,
+    DATASET,
+    DATASET_CONFIG,
+    HYPERPARAMETERS,
+    TRAINER_SPECIFICATIONS,
+    EVALUATION_MODEL,
+    EVALUATION_SPECIFICATIONS,
 
-EVALUATION_MODEL = "microsoft-phi-2_ultrabin_lora_results/checkpoint-75"
-
-HYPERPARAMETERS = {
-    "learning_rate": 1e-4,                   # Initial learning rate
-    "optim": "paged_adamw_8bit",             # Use 8-bit AdamW optimizer for memory efficiency
-    "per_device_train_batch_size": 4,        # Batch size per device during training
-    "max_steps": 200,                        # Total number of training steps
-    "lr_scheduler_type": "linear",            # Use a linear learning rate scheduler
-    "warmup_steps": 25,                      # Number of warmup steps for learning rate scheduler
-}
-
-TOKENIZER_CONFIG = {
-    "add_eos_token": True,
-    "use_fast": True,
-    "padding_side": "left"
-}
-
-MODEL_CONFIG = {
-    "device_map": "auto"
-}
-
-DATASET_CONFIG = {
-    "num_val": 25
-}
-
-QUANTIZATION_CONFIG = {
-    "load_in_4bit": True,
-    "bnb_4bit_quant_type": "nf4",
-    "bnb_4bit_compute_dtype": getattr(torch, "bfloat16"),
-    "bnb_4bit_use_double_quant": True
-}
-
-TRAINER_SPECIFICATIONS = {
-    "max_seq_length": 512
-}
-
-EVALUATION_SPECIFICATIONS = {
-    "batch_size": 8,
-    "num_batches": 2,
-    "max_length": 128
-}
+)
 
 def train():
     """
     Pipeline for SFT on a pretrained model
     """
 
-    # -------------------- MODIFY TO CHANGE PIPELINE --------------------
     # Prepare quantization scheme
-    quantization = QuantizationLoader(**QUANTIZATION_CONFIG).load()
-    # quantization = None
+    quantization = QuantizationLoader(**QUANTIZATION_CONFIG).load() if USE_QUANTIZATION else None
 
     # Set PEFT
-    lora = LoRALoader().load()
-    prompt_tunning = PromptTunningLoader(MODEL, num_virtual_tokens=50).load()
-    peft_config = lora
+    peft_configs = []
+    if USE_LORA: 
+        lora = LoRALoader(**LORA_CONFIG).load()
+        peft_configs.append(lora)
+    elif USE_PROMPT_TUNNING:
+        prompt_tunning = PromptTunningLoader(MODEL, **PROMPT_TUNNING_CONFIG).load()
+        peft_configs.append(prompt_tunning)
 
-    # -------------------------------------------------------------------
-    # ---------------------- NO NEED TO MODIFY --------------------------
     # Load Tokenizer
     tokenizer = TokenizerLoader(TOKENIZER if TOKENIZER else MODEL, **TOKENIZER_CONFIG).load()
     # Load Model - Add PEFT
     model = ModelLoader(MODEL, pad_token_id=tokenizer.pad_token_id, quantization=quantization, **MODEL_CONFIG).load()
+    # Load PEFT
+    model = PEFTLoader(model, peft_configs).load()
     # Load dataset
     dataset = FT_training_dataset(dataset_name=DATASET, tokenizer=tokenizer, **DATASET_CONFIG)
 
@@ -93,7 +67,6 @@ def train():
         model,
         dataset,
         tokenizer,
-        peft_config,
         HYPERPARAMETERS,
         MODEL.replace("/", "-")+f"{time.time()}_results",
         True,
